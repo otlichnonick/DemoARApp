@@ -44,15 +44,11 @@ class ViewController: UIViewController {
     }
     
     @IBAction func deleteDirectionButtonTapped(_ sender: Any) {
-        DispatchQueue.main.async {
-            self.deleteDirectionArrow()
-        }
+            deleteDirectionArrow()
     }
     
     @IBAction func getDirectionButtonTapped(_ sender: Any) {
-        DispatchQueue.main.async {
-            self.setDirectionArrow()
-        }
+            setDirectionArrow()
     }
 }
 
@@ -90,15 +86,14 @@ extension ViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         switch locationManager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
-            trackedLocation = Constants.locationAirport
+            trackedLocation = Constants.locationKaliningrad
             guard let currentLocation = locations.last else { return }
             guard let trackedLocation = trackedLocation else { return }
             let location = CLLocation(latitude: trackedLocation.latitude, longitude: trackedLocation.longitude)
             distance = currentLocation.distance(from: location)
             course = bearing(from: currentLocation, to: location)
             distanceLabel?.isHidden = false
-            distanceLabel?.text = "до цели \(String(format: "%.1f", distance)) м"
-//            print("course = \(course * 180 / .pi)")
+            distanceLabel?.text = get(distance)
         default:
             setTextToErrorLabel("для определения местоположения нужно разрешить отслеживать ваше геоположение")
         }
@@ -112,13 +107,20 @@ extension ViewController: CLLocationManagerDelegate {
         print("Authorization status changed to: \(status)")
     }
     
+    private func get(_ distanse: Double) -> String {
+        if distance < 1000 {
+            return "до цели \(String(format: "%.1f", distance)) м"
+        } else {
+            return "до цели \(String(Int(distance / 1000))) км"
+        }
+    }
+    
     private func bearing(from currentLocation: CLLocation, to destination: CLLocation) -> Double {
 
         let lat1 = .pi * currentLocation.coordinate.latitude / 180.0
         let long1 = .pi * currentLocation.coordinate.longitude / 180.0
         let lat2 = .pi * destination.coordinate.latitude / 180.0
         let long2 = .pi * destination.coordinate.longitude / 180.0
-        
 
         let rads = atan2(
             sin(long2 - long1) * cos(lat2),
@@ -202,15 +204,7 @@ extension ViewController {
         let arrowGeometry = SCNGeometry(sources: [vertexSource], elements: [element])
         
         let material = arrowGeometry.firstMaterial!
-        
         material.diffuse.contents = UIColor(red: 0.14, green: 0.82, blue: 0.95, alpha: 1.0)
-        material.lightingModel = .lambert
-        material.transparency = 1.00
-        material.transparencyMode = .dualLayer
-        material.fresnelExponent = 1.00
-        material.reflective.contents = UIColor(white:0.00, alpha:1.0)
-        material.specular.contents = UIColor(white:0.00, alpha:1.0)
-        material.shininess = 1.00
         
         let arrowNode = SCNNode(geometry: arrowGeometry)
         return arrowNode

@@ -13,7 +13,6 @@
 		3A34930826F227820090B712 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3A34930626F227820090B712 /* Main.storyboard */; };
 		3A34930A26F227850090B712 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3A34930926F227850090B712 /* Assets.xcassets */; };
 		3A34930D26F227850090B712 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3A34930B26F227850090B712 /* LaunchScreen.storyboard */; };
-		3A34931526F228640090B712 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A34931426F228640090B712 /* LocationManager.swift */; };
 		3A34931726F234480090B712 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A34931626F234480090B712 /* Constants.swift */; };
 /* End PBXBuildFile section */
 
@@ -26,7 +25,6 @@
 		3A34930926F227850090B712 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3A34930C26F227850090B712 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3A34930E26F227850090B712 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		3A34931426F228640090B712 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		3A34931626F234480090B712 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -67,7 +65,6 @@
 				3A34930926F227850090B712 /* Assets.xcassets */,
 				3A34930B26F227850090B712 /* LaunchScreen.storyboard */,
 				3A34930E26F227850090B712 /* Info.plist */,
-				3A34931426F228640090B712 /* LocationManager.swift */,
 				3A34931626F234480090B712 /* Constants.swift */,
 			);
 			path = DemoARApp;
@@ -146,7 +143,6 @@
 			files = (
 				3A34930526F227820090B712 /* ViewController.swift in Sources */,
 				3A34930126F227820090B712 /* AppDelegate.swift in Sources */,
-				3A34931526F228640090B712 /* LocationManager.swift in Sources */,
 				3A34931726F234480090B712 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -14,16 +14,21 @@ class ViewController: UIViewController {
     
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet weak var messageLabel: UILabel!
+    @IBOutlet weak var errorLabel: UILabel!
+    @IBOutlet weak var distanceLabel: UILabel!
     @IBOutlet weak var deleteDirectionButton: UIButton!
     @IBOutlet weak var getDirectionButton: UIButton!
-    private var locationManager = LocationManager()
-    private var arrowNode: SCNNode?
-    
+    private var locationManager = CLLocationManager()
+    private var node: SCNNode?
+    private var distance: Double = 0
+    private var course: Double = 0
+    private var trackedLocation: CLLocationCoordinate2D?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         sceneViewInitiate()
-        coreLocationInitiate()
         configureUI()
+        configureLocationManager()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -39,34 +44,88 @@ class ViewController: UIViewController {
     }
     
     @IBAction func deleteDirectionButtonTapped(_ sender: Any) {
-        deleteDirectionArrow()
+        DispatchQueue.main.async {
+            self.deleteDirectionArrow()
+        }
     }
     
     @IBAction func getDirectionButtonTapped(_ sender: Any) {
-        setDirectionArrow()
+        DispatchQueue.main.async {
+            self.setDirectionArrow()
+        }
     }
 }
 
 extension ViewController: ARSCNViewDelegate {
     func session(_ session: ARSession, didFailWithError error: Error) {
-        // Present an error message to the user
-        guard let label = messageLabel else { return }
-        label.text = error.localizedDescription
+        setTextToErrorLabel(error.localizedDescription)
     }
     
     func sessionWasInterrupted(_ session: ARSession) {
-        // Inform the user that the session has been interrupted, for example, by presenting an overlay
-        guard let label = messageLabel else { return }
-        label.text = "сессия прервана"
+        setTextToErrorLabel("сессия прервана")
     }
     
-    func sessionInterruptionEnded(_ session: ARSession) {
-        // Reset tracking and/or remove existing anchors if consistent tracking is required
+    private func setTextToMessageLabel(_ text: String) {
         guard let label = messageLabel else { return }
-        label.text = "сессия возобновлена"
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            label.text = Constants.setArrow
+        label.text = text
+    }
+    
+    private func setTextToErrorLabel(_ text: String) {
+        guard let label = errorLabel else { return }
+        label.isHidden = false
+        label.text = text
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            label.isHidden = true
         }
+    }
+
+    
+    func sessionInterruptionEnded(_ session: ARSession) {
+        setTextToMessageLabel(Constants.setArrow)
+        setTextToErrorLabel("сессия возобновлена")
+    }
+}
+
+extension ViewController: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        switch locationManager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            trackedLocation = Constants.locationAirport
+            guard let currentLocation = locations.last else { return }
+            guard let trackedLocation = trackedLocation else { return }
+            let location = CLLocation(latitude: trackedLocation.latitude, longitude: trackedLocation.longitude)
+            distance = currentLocation.distance(from: location)
+            course = bearing(from: currentLocation, to: location)
+            distanceLabel?.isHidden = false
+            distanceLabel?.text = "до цели \(String(format: "%.1f", distance)) м"
+//            print("course = \(course * 180 / .pi)")
+        default:
+            setTextToErrorLabel("для определения местоположения нужно разрешить отслеживать ваше геоположение")
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        setTextToMessageLabel(error.localizedDescription)
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        print("Authorization status changed to: \(status)")
+    }
+    
+    private func bearing(from currentLocation: CLLocation, to destination: CLLocation) -> Double {
+
+        let lat1 = .pi * currentLocation.coordinate.latitude / 180.0
+        let long1 = .pi * currentLocation.coordinate.longitude / 180.0
+        let lat2 = .pi * destination.coordinate.latitude / 180.0
+        let long2 = .pi * destination.coordinate.longitude / 180.0
+        
+
+        let rads = atan2(
+            sin(long2 - long1) * cos(lat2),
+            cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(long2 - long1))
+        let degrees = rads * 180 / Double.pi
+        
+        return (degrees+360).truncatingRemainder(dividingBy: 360)
     }
 }
 
@@ -77,30 +136,40 @@ extension ViewController {
         getDirectionButton.layer.cornerRadius = 5
         getDirectionButton.titleEdgeInsets = UIEdgeInsets(top: 8, left: 3, bottom: 8, right: 3)
         messageLabel?.text = Constants.setArrow
+        distanceLabel?.text = ""
+        errorLabel?.isHidden = true
+        distanceLabel?.isHidden = true
+    }
+    
+    func configureLocationManager() {
+        locationManager.delegate = self
+        locationManager.activityType = .fitness
+        locationManager.startUpdatingLocation()
+        locationManager.requestWhenInUseAuthorization()
     }
     
     func sceneViewInitiate() {
+        sceneView.autoenablesDefaultLighting = true
         sceneView.delegate = self
         let scene = SCNScene()        
         sceneView.scene = scene
     }
     
-    func coreLocationInitiate() {
-        locationManager.initialize()
-        locationManager.delegate = self
-    }
-    
     func setDirectionArrow() {
-        arrowNode = makeDirectionArrow()
-        guard let arrowNode = arrowNode else { return }
-        arrowNode.scale = SCNVector3(0.1, 0.1, 0.1)
-        arrowNode.position = SCNVector3(0.0, 0.0, 0.8)
+        node = makeDirectionArrow()
+        guard let arrowNode = node else {
+            debugPrint("there are no node!")
+            return
+        }
+        arrowNode.position = SCNVector3(0.0, 0.0, 1.0)
+        arrowNode.scale = SCNVector3(0.05, 0.05, 0.05)
+        arrowNode.eulerAngles = SCNVector3(0, course, 0)
         sceneView.scene.rootNode.addChildNode(arrowNode)
     }
     
     func deleteDirectionArrow() {
-        arrowNode?.removeFromParentNode()
-        arrowNode = nil
+        node?.removeFromParentNode()
+        node = nil
     }
     
     func makeDirectionArrow() -> SCNNode {
@@ -146,16 +215,4 @@ extension ViewController {
         let arrowNode = SCNNode(geometry: arrowGeometry)
         return arrowNode
     }
-}
-
-extension ViewController: LocationManagerDelegate {
-    func locationManager(_ locationManager: LocationManager, didEnterRegionId regionId: String) {
-        print("You are in the region \(regionId)")
-    }
-    
-    func locationManager(_ locationManager: LocationManager, didExitRegionId regionId: String) {
-        print("You are not in the region \(regionId)")
-    }
-    
-    
 }

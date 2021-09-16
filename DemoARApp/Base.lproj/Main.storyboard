@@ -45,10 +45,24 @@
                                     <constraint firstItem="eOC-lu-UKC" firstAttribute="width" secondItem="ZBS-26-GeE" secondAttribute="width" id="Vh5-a7-aDr"/>
                                 </constraints>
                             </stackView>
-                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.94999999999999996" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="A0S-sG-Y9b" userLabel="MessageLabel">
-                                <rect key="frame" x="16" y="54" width="382" height="16"/>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.94999998807907104" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RBw-uV-vJB" userLabel="ErrorLabel">
+                                <rect key="frame" x="20" y="746" width="374" height="16"/>
                                 <color key="backgroundColor" red="0.968690987" green="0.98980905549999998" blue="0.62092899999999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.94999999999999996" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="A0S-sG-Y9b" userLabel="MessageLabel">
+                                <rect key="frame" x="20" y="54" width="374" height="16"/>
+                                <color key="backgroundColor" red="0.968690987" green="0.98980905549999998" blue="0.62092899999999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.94999998807907104" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1Ju-vd-KGW" userLabel="DistanceLabel">
+                                <rect key="frame" x="20" y="87" width="374" height="17"/>
+                                <color key="backgroundColor" red="0.61261786660717488" green="0.98980905549999998" blue="0.6553347028624561" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -56,13 +70,19 @@
                         <viewLayoutGuide key="safeArea" id="fQZ-KI-GVf"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="RBw-uV-vJB" firstAttribute="centerX" secondItem="BrB-h1-WRS" secondAttribute="centerX" id="5f3-qk-Rs3"/>
+                            <constraint firstItem="1Ju-vd-KGW" firstAttribute="centerX" secondItem="BrB-h1-WRS" secondAttribute="centerX" id="AdK-ps-pap"/>
                             <constraint firstItem="A0S-sG-Y9b" firstAttribute="centerX" secondItem="BrB-h1-WRS" secondAttribute="centerX" id="DTe-1U-CAR"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" id="GsS-dJ-CKf"/>
                             <constraint firstItem="gET-L6-uGY" firstAttribute="centerX" secondItem="BrB-h1-WRS" secondAttribute="centerX" id="JQy-aY-DzO"/>
+                            <constraint firstItem="1Ju-vd-KGW" firstAttribute="leading" secondItem="BrB-h1-WRS" secondAttribute="leading" constant="20" id="U5o-77-lhe"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="bottom" secondItem="fQZ-KI-GVf" secondAttribute="bottom" id="VpT-BR-CcM"/>
-                            <constraint firstItem="A0S-sG-Y9b" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" constant="16" id="Xjr-fi-ued"/>
+                            <constraint firstItem="A0S-sG-Y9b" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" constant="20" id="Xjr-fi-ued"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="trailing" secondItem="fQZ-KI-GVf" secondAttribute="trailing" id="XyZ-9z-H8e"/>
+                            <constraint firstItem="eOC-lu-UKC" firstAttribute="top" secondItem="RBw-uV-vJB" secondAttribute="bottom" constant="20" id="aIJ-uE-9Uu"/>
+                            <constraint firstItem="1Ju-vd-KGW" firstAttribute="top" secondItem="A0S-sG-Y9b" secondAttribute="bottom" constant="17" id="aPa-Bt-0Aq"/>
                             <constraint firstItem="gET-L6-uGY" firstAttribute="width" secondItem="BrB-h1-WRS" secondAttribute="width" multiplier="0.8" id="ajy-R2-NHc"/>
+                            <constraint firstItem="RBw-uV-vJB" firstAttribute="leading" secondItem="BrB-h1-WRS" secondAttribute="leading" constant="20" id="dZO-Vw-Bcx"/>
                             <constraint firstItem="gET-L6-uGY" firstAttribute="bottom" secondItem="BrB-h1-WRS" secondAttribute="bottom" constant="-50" id="l97-7b-BG7"/>
                             <constraint firstItem="A0S-sG-Y9b" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" constant="10" id="nBO-ul-Eg1"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="top" secondItem="U0K-SW-4ec" secondAttribute="top" id="rJc-2c-zQA"/>
@@ -70,6 +90,8 @@
                     </view>
                     <connections>
                         <outlet property="deleteDirectionButton" destination="eOC-lu-UKC" id="pnd-6C-eCt"/>
+                        <outlet property="distanceLabel" destination="1Ju-vd-KGW" id="xDv-m9-Zcd"/>
+                        <outlet property="errorLabel" destination="RBw-uV-vJB" id="tUc-uB-Yfe"/>
                         <outlet property="getDirectionButton" destination="ZBS-26-GeE" id="8L9-Bi-D0R"/>
                         <outlet property="messageLabel" destination="A0S-sG-Y9b" id="sNj-Zg-Bhy"/>
                         <outlet property="sceneView" destination="BrB-h1-WRS" id="5nT-qQ-ynl"/>

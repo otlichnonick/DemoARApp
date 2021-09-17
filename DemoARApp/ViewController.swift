@@ -33,6 +33,7 @@ class ViewController: UIViewController {
     
     @IBAction func getDirectionButtonTapped(_ sender: Any) {
             addArrow()
+        print(course)
     }
 }
 
@@ -116,7 +117,7 @@ extension ViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         switch locationManager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
-            trackedLocation = Constants.locationKaliningrad
+            trackedLocation = Constants.locationMurmansk
             guard let currentLocation = locations.last else { return }
             guard let trackedLocation = trackedLocation else { return }
             let location = CLLocation(latitude: trackedLocation.latitude, longitude: trackedLocation.longitude)
@@ -150,9 +151,9 @@ extension ViewController: CLLocationManagerDelegate {
         let rads = atan2(
             sin(long2 - long1) * cos(lat2),
             cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(long2 - long1))
-        let degrees = rads * 180 / Double.pi
+        print(rads * 180 / .pi)
         
-        return degrees
+        return rads
     }
 }
 

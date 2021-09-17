@@ -11,31 +11,47 @@ import ARKit
 import CoreLocation
 
 class ViewController: UIViewController {
+    // MARK: - Properties
+    private var locationManager = CLLocationManager()
+    private var arrowNode: SCNNode?
+    private var distance: Double = 0
+    private var course: Double = 0
+    private var trackedLocation: CLLocationCoordinate2D?
     
+    // MARK: - Outlets
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet weak var messageLabel: UILabel!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var distanceLabel: UILabel!
     @IBOutlet weak var deleteDirectionButton: UIButton!
     @IBOutlet weak var getDirectionButton: UIButton!
-    private var locationManager = CLLocationManager()
-    private var node: SCNNode?
-    private var distance: Double = 0
-    private var course: Double = 0
-    private var trackedLocation: CLLocationCoordinate2D?
+    
+    // MARK: - Actions
+    @IBAction func deleteDirectionButtonTapped(_ sender: Any) {
+            deleteArrow()
+    }
+    
+    @IBAction func getDirectionButtonTapped(_ sender: Any) {
+            addArrow()
+    }
+}
 
+extension ViewController {
+    
+    // MARK: - View Management
     override func viewDidLoad() {
         super.viewDidLoad()
-        sceneViewInitiate()
+        initSceneView()
+        initScene()
+        initARSession()
         configureUI()
         configureLocationManager()
+        loadArrowModel()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let configuration = ARWorldTrackingConfiguration()
-        configuration.worldAlignment = .gravityAndHeading
-        sceneView.session.run(configuration)
+        initARSession()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -43,12 +59,37 @@ class ViewController: UIViewController {
         sceneView.session.pause()
     }
     
-    @IBAction func deleteDirectionButtonTapped(_ sender: Any) {
-            deleteDirectionArrow()
+    private func initSceneView() {
+        sceneView.autoenablesDefaultLighting = true
+        sceneView.delegate = self
     }
     
-    @IBAction func getDirectionButtonTapped(_ sender: Any) {
-            setDirectionArrow()
+    private func initScene() {
+        let scene = SCNScene()
+        sceneView.scene = scene
+    }
+    
+    private func configureUI() {
+        deleteDirectionButton.layer.cornerRadius = 5
+        deleteDirectionButton.titleEdgeInsets = UIEdgeInsets(top: 8, left: 3, bottom: 8, right: 3)
+        getDirectionButton.layer.cornerRadius = 5
+        getDirectionButton.titleEdgeInsets = UIEdgeInsets(top: 8, left: 3, bottom: 8, right: 3)
+        messageLabel?.text = Constants.setArrow
+        distanceLabel?.text = ""
+        errorLabel?.isHidden = true
+        distanceLabel?.isHidden = true
+    }
+    
+    private func initARSession() {
+        guard ARWorldTrackingConfiguration.isSupported else {
+            setTextToErrorLabel("AR сессия не поддерживается")
+            return
+        }
+        
+        let configuration = ARWorldTrackingConfiguration()
+        configuration.worldAlignment = .gravity
+        configuration.providesAudioData = false
+        sceneView.session.run(configuration)
     }
 }
 
@@ -61,21 +102,6 @@ extension ViewController: ARSCNViewDelegate {
         setTextToErrorLabel("сессия прервана")
     }
     
-    private func setTextToMessageLabel(_ text: String) {
-        guard let label = messageLabel else { return }
-        label.text = text
-    }
-    
-    private func setTextToErrorLabel(_ text: String) {
-        guard let label = errorLabel else { return }
-        label.isHidden = false
-        label.text = text
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            label.isHidden = true
-        }
-    }
-
-    
     func sessionInterruptionEnded(_ session: ARSession) {
         setTextToMessageLabel(Constants.setArrow)
         setTextToErrorLabel("сессия возобновлена")
@@ -83,6 +109,10 @@ extension ViewController: ARSCNViewDelegate {
 }
 
 extension ViewController: CLLocationManagerDelegate {
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        setTextToErrorLabel("Authorization status changed to: \(manager.authorizationStatus)")
+    }
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         switch locationManager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
@@ -100,11 +130,7 @@ extension ViewController: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        setTextToMessageLabel(error.localizedDescription)
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        print("Authorization status changed to: \(status)")
+        setTextToErrorLabel(error.localizedDescription)
     }
     
     private func get(_ distanse: Double) -> String {
@@ -116,7 +142,6 @@ extension ViewController: CLLocationManagerDelegate {
     }
     
     private func bearing(from currentLocation: CLLocation, to destination: CLLocation) -> Double {
-
         let lat1 = .pi * currentLocation.coordinate.latitude / 180.0
         let long1 = .pi * currentLocation.coordinate.longitude / 180.0
         let lat2 = .pi * destination.coordinate.latitude / 180.0
@@ -127,54 +152,66 @@ extension ViewController: CLLocationManagerDelegate {
             cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(long2 - long1))
         let degrees = rads * 180 / Double.pi
         
-        return (degrees+360).truncatingRemainder(dividingBy: 360)
+        return degrees
     }
 }
 
 extension ViewController {
-    func configureUI() {
-        deleteDirectionButton.layer.cornerRadius = 5
-        deleteDirectionButton.titleEdgeInsets = UIEdgeInsets(top: 8, left: 3, bottom: 8, right: 3)
-        getDirectionButton.layer.cornerRadius = 5
-        getDirectionButton.titleEdgeInsets = UIEdgeInsets(top: 8, left: 3, bottom: 8, right: 3)
-        messageLabel?.text = Constants.setArrow
-        distanceLabel?.text = ""
-        errorLabel?.isHidden = true
-        distanceLabel?.isHidden = true
-    }
-    
-    func configureLocationManager() {
+    private func configureLocationManager() {
         locationManager.delegate = self
         locationManager.activityType = .fitness
         locationManager.startUpdatingLocation()
         locationManager.requestWhenInUseAuthorization()
     }
     
-    func sceneViewInitiate() {
-        sceneView.autoenablesDefaultLighting = true
-        sceneView.delegate = self
-        let scene = SCNScene()        
-        sceneView.scene = scene
+    private func setTextToMessageLabel(_ text: String) {
+        guard let label = messageLabel else { return }
+        label.text = text
     }
     
-    func setDirectionArrow() {
-        node = makeDirectionArrow()
-        guard let arrowNode = node else {
+    private func setTextToErrorLabel(_ text: String) {
+        guard let label = errorLabel else { return }
+        label.isHidden = false
+        label.text = text
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            label.isHidden = true
+        }
+    }
+    
+    func addArrow() {
+        guard let arrowNode = arrowNode else {
             debugPrint("there are no node!")
             return
         }
-        arrowNode.position = SCNVector3(0.0, 0.0, 1.0)
-        arrowNode.scale = SCNVector3(0.05, 0.05, 0.05)
+        guard let frame = sceneView.session.currentFrame else { return }
+        let transform = SCNMatrix4(frame.camera.transform)
+//        arrowNode.position = SCNVector3(0, 0, -0.5)
+        arrowNode.position = SCNVector3(transform.m41,
+                                        transform.m42,
+                                        transform.m43 - 0.5)
+        arrowNode.scale = SCNVector3(0.3, 0.3, 0.3)
         arrowNode.eulerAngles = SCNVector3(0, course, 0)
         sceneView.scene.rootNode.addChildNode(arrowNode)
     }
     
-    func deleteDirectionArrow() {
-        node?.removeFromParentNode()
-        node = nil
+    func deleteArrow() {
+        DispatchQueue.main.async {
+            self.arrowNode?.removeFromParentNode()
+        }
     }
     
-    func makeDirectionArrow() -> SCNNode {
+    func loadArrowModel() {
+        guard let arrowScene = SCNScene(named: "art.scnassets/arrow.scn") else {
+            print("couldn't fetch a scene")
+            return
+        }
+        arrowNode = arrowScene.rootNode.childNode(withName: "Arrow", recursively: false)
+//        let material = SCNMaterial()
+//        material.diffuse.contents = UIColor.green
+//        arrowNode?.geometry?.materials = [material]
+    }
+    
+    func createArrowModel() -> SCNNode {
         let vertcount = 48
         let verts: [Float] = [ -1.4923, 1.1824, 2.5000, -6.4923, 0.000, 0.000, -1.4923, -1.1824, 2.5000, 4.6077, -0.5812, 1.6800, 4.6077, -0.5812, -1.6800, 4.6077, 0.5812, -1.6800, 4.6077, 0.5812, 1.6800, -1.4923, -1.1824, -2.5000, -1.4923, 1.1824, -2.5000, -1.4923, 0.4974, -0.9969, -1.4923, 0.4974, 0.9969, -1.4923, -0.4974, 0.9969, -1.4923, -0.4974, -0.9969 ];
         
